@@ -1,4 +1,5 @@
 # Huffman
+Originally written to help with a research paper for the [Network Technologies for Multimedia Applications course](https://ufind.univie.ac.at/en/course.html?lv=052615&semester=2021W) at the University of Vienna in the Winter Semester of 2021.
 
 **TODO: Add description**
 
