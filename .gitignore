@@ -24,3 +24,7 @@ huffman-*.tar
 
 # Temporary files, for example, from tests.
 /tmp/
+
+# Input and output files
+/input/
+/output/
