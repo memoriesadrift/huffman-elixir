@@ -3,15 +3,15 @@ defmodule Huffman.IO do
   # TODO: Add moduledoc
 
   @spec get_text(any, any, any, fun) :: binary
-  def get_text(filepath, filename, filetype \\ "txt", filter_fn \\ (fn e -> e end)) do
+  def get_text(filepath, filename, filetype \\ "txt", filter_fn \\ fn e -> e end) do
     get_from_file(filepath, filename, filetype)
     |> String.downcase()
     |> String.graphemes()
-    |> Enum.filter(&(filter_fn.(&1)))
+    |> Enum.filter(&filter_fn.(&1))
     |> Enum.join()
   end
 
-  @spec get_text_frequencies(String.t, String.t, String.t, fun) :: map
+  @spec get_text_frequencies(String.t(), String.t(), String.t(), fun) :: map
   @doc """
   Finds the frequency distribution for the text in file `filename` with extension `filetype`.
   ### Examples
@@ -22,32 +22,35 @@ defmodule Huffman.IO do
   %{"c" => 1, "o" => 1, "s" => 1, "y" => 1}
   ```
   """
-  def get_text_frequencies(filepath, filename, filetype \\ "txt", filter_fn \\ (fn e -> e end) ) do
+  def get_text_frequencies(filepath, filename, filetype \\ "txt", filter_fn \\ fn e -> e end) do
     get_from_file(filepath, filename, filetype)
     |> String.downcase()
     |> String.graphemes()
-    |> Enum.filter(&(filter_fn.(&1)))
+    |> Enum.filter(&filter_fn.(&1))
     |> Enum.frequencies()
   end
 
-  @spec get_text_and_frequencies(String.t, String.t, String.t, fun) :: {binary, map}
-  def get_text_and_frequencies(filepath, filename, filetype \\ "txt", filter_fn \\ (fn e -> e end)) do
-    raw = get_from_file(filepath, filename, filetype)
-    |> String.downcase()
-    |> String.graphemes()
+  @spec get_text_and_frequencies(String.t(), String.t(), String.t(), fun) :: {binary, map}
+  def get_text_and_frequencies(filepath, filename, filetype \\ "txt", filter_fn \\ fn e -> e end) do
+    raw =
+      get_from_file(filepath, filename, filetype)
+      |> String.downcase()
+      |> String.graphemes()
 
-    text = raw
-    |> Enum.filter(&(filter_fn.(&1)))
-    |> Enum.join()
+    text =
+      raw
+      |> Enum.filter(&filter_fn.(&1))
+      |> Enum.join()
 
-    frequencies = raw
-    |> Enum.filter(&(filter_fn.(&1)))
-    |> Enum.frequencies()
+    frequencies =
+      raw
+      |> Enum.filter(&filter_fn.(&1))
+      |> Enum.frequencies()
 
     {text, frequencies}
   end
 
-  @spec get_encoding_from_file(String.t, String.t, String.t) :: map
+  @spec get_encoding_from_file(String.t(), String.t(), String.t()) :: map
   @doc """
   Reads a Huffman encoding from file `filename` with extension `filetype` and saves
   it as a map that can be used by further `Huffman` modules.
@@ -71,7 +74,7 @@ defmodule Huffman.IO do
     |> Map.new()
   end
 
-  @spec get_frequencies_from_file(String.t, String.t, String.t) :: map
+  @spec get_frequencies_from_file(String.t(), String.t(), String.t()) :: map
   @doc """
   Reads a frequency distribution from file `filename` with extension `filetype` and saves
   it as a map that can be used by further `Huffman` modules.
@@ -91,30 +94,35 @@ defmodule Huffman.IO do
   def get_frequencies_from_file(filepath, filename, filetype \\ "txt") do
     get_from_file(filepath, filename, filetype)
     |> String.split("\n")
-    |> Enum.flat_map(&(String.split(&1, " => ") |> Kernel.then(fn [k, v] -> %{k => String.to_integer(v)} end)))
+    |> Enum.flat_map(
+      &(String.split(&1, " => ")
+        |> Kernel.then(fn [k, v] -> %{k => String.to_integer(v)} end))
+    )
     |> Map.new()
   end
 
   @spec write_encoded_text_to_file(
           binary,
-          String.t,
-          String.t,
-          String.t
+          String.t(),
+          String.t(),
+          String.t()
         ) :: :ok
-  def write_encoded_text_to_file(data, filename, suffix \\ "encoded", filetype \\ "txt"), do: write_to_file(data, filename, suffix, filetype)
+  def write_encoded_text_to_file(data, filename, suffix \\ "encoded", filetype \\ "txt"),
+    do: write_to_file(data, filename, suffix, filetype)
 
   @spec write_report_to_file(
           binary,
-          String.t,
-          String.t,
-          String.t
+          String.t(),
+          String.t(),
+          String.t()
         ) :: :ok
-  def write_report_to_file(data, filename, suffix \\ "report", filetype \\ "txt"), do: write_to_file(data, filename, suffix, filetype)
+  def write_report_to_file(data, filename, suffix \\ "report", filetype \\ "txt"),
+    do: write_to_file(data, filename, suffix, filetype)
 
-  @spec write_encoding_to_file(map, String.t, String.t, String.t) :: :ok
+  @spec write_encoding_to_file(map, String.t(), String.t(), String.t()) :: :ok
   def write_encoding_to_file(encoding, filename, suffix \\ "encoding", filetype \\ "txt") do
     encoding
-    |> Enum.map(&(&1))
+    |> Enum.map(& &1)
     |> Enum.map(fn {k, v} -> "#{k} => #{v}" end)
     |> Enum.join("\n")
     |> write_to_file(filename, suffix, filetype)
@@ -128,6 +136,6 @@ defmodule Huffman.IO do
     File.read!(Path.relative("#{filepath}/#{filename}.#{filetype}"))
   end
 
-  #def parse_corpus_csv(filepath, filename) do
-  #end
+  # def parse_corpus_csv(filepath, filename) do
+  # end
 end
